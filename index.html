@@ -1,16 +1,657 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EchoCare — Voice-First Health Assistant</title>
-    <meta name="description" content="A voice-first AI health assistant for seniors and visually impaired users." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EchoCare — Voice-First Health Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --card: #1a1a1a;
+  --border: rgba(255,255,255,0.08);
+  --border-hi: rgba(255,255,255,0.18);
+  --text: #f0ede8;
+  --muted: #8a8682;
+  --accent: #c8f060;
+  --accent-dim: rgba(200,240,96,0.12);
+  --accent-glow: rgba(200,240,96,0.25);
+  --danger: #ff5a5a;
+  --danger-dim: rgba(255,90,90,0.12);
+  --info: #60c8f0;
+  --info-dim: rgba(96,200,240,0.10);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+body {
+  font-family: 'Lexend', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px 16px;
+  border-bottom: 0.5px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-dot {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.logo-text { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: -0.5px; }
+.logo-text em { color: var(--accent); font-style: normal; }
+.header-badge {
+  font-size: 12px; color: var(--accent);
+  background: var(--accent-dim);
+  border: 0.5px solid rgba(200,240,96,0.3);
+  padding: 4px 12px; border-radius: 99px; font-weight: 500;
+}
+
+/* ── MAIN ── */
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── VOICE CARD ── */
+.voice-card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 28px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.voice-label {
+  font-size: 12px; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--muted); font-weight: 500;
+}
+.waveform {
+  display: flex; align-items: center;
+  gap: 3px; height: 40px; width: 120px; justify-content: center;
+}
+.bar {
+  width: 4px; background: var(--border-hi);
+  border-radius: 2px; height: 6px;
+  transition: height 0.1s ease, background 0.2s;
+}
+.waveform.active .bar {
+  background: var(--accent);
+  animation: wave 0.6s ease-in-out infinite alternate;
+}
+.bar:nth-child(1){animation-delay:0s}
+.bar:nth-child(2){animation-delay:.08s}
+.bar:nth-child(3){animation-delay:.16s}
+.bar:nth-child(4){animation-delay:.24s}
+.bar:nth-child(5){animation-delay:.32s}
+.bar:nth-child(6){animation-delay:.40s}
+.bar:nth-child(7){animation-delay:.48s}
+.bar:nth-child(8){animation-delay:.56s}
+@keyframes wave {
+  from { height: 6px; }
+  to { height: 28px; }
+}
+.mic-btn {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.mic-btn:hover:not(:disabled) { background: var(--accent-glow); transform: scale(1.05); }
+.mic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.mic-btn.listening {
+  background: var(--accent); font-size: 28px;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 8px var(--accent-dim); }
+  50% { box-shadow: 0 0 0 16px rgba(200,240,96,0.05); }
+}
+.transcript-box {
+  width: 100%; background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px; min-height: 54px;
+  font-size: 16px; line-height: 1.5;
+  color: var(--text); font-style: italic;
+}
+.transcript-box.placeholder { color: var(--muted); font-style: normal; }
+.input-row { display: flex; gap: 10px; width: 100%; }
+.text-input {
+  flex: 1; background: var(--surface);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px; font-size: 15px;
+  font-family: 'Lexend', sans-serif;
+  color: var(--text); outline: none;
+  transition: border-color 0.2s;
+}
+.text-input:focus { border-color: var(--accent); }
+.text-input::placeholder { color: var(--muted); }
+.send-btn {
+  padding: 12px 22px; background: var(--accent);
+  color: #0a0a0a; border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Lexend', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+}
+.send-btn:hover:not(:disabled) { opacity: 0.85; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.quick-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.quick-btn {
+  background: var(--surface);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xs);
+  padding: 8px 14px; font-size: 13px;
+  font-family: 'Lexend', sans-serif;
+  color: var(--muted); cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.quick-btn:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
+.quick-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── AI RESPONSE ── */
+.ai-response {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: none; flex-direction: column; gap: 10px;
+}
+.ai-response.show { display: flex; }
+.ai-top { display: flex; align-items: center; gap: 10px; }
+.ai-label {
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--accent); font-weight: 500;
+}
+.intent-badge {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 99px; font-size: 12px; font-weight: 500;
+}
+.badge-reminder { background: var(--accent-dim); color: var(--accent); border: 0.5px solid rgba(200,240,96,0.3); }
+.badge-emergency { background: var(--danger-dim); color: var(--danger); border: 0.5px solid rgba(255,90,90,0.3); }
+.badge-question { background: var(--info-dim); color: var(--info); border: 0.5px solid rgba(96,200,240,0.3); }
+.badge-general { background: rgba(255,255,255,0.06); color: var(--muted); border: 0.5px solid var(--border-hi); }
+.ai-text { font-size: 17px; line-height: 1.65; color: var(--text); }
+.dots { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+.dots span {
+  display: inline-block; width: 7px; height: 7px;
+  background: var(--accent); border-radius: 50%;
+  animation: bounce 0.9s ease-in-out infinite alternate;
+}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce {
+  from { transform: translateY(0); opacity: 0.4; }
+  to { transform: translateY(-7px); opacity: 1; }
+}
+
+/* ── GRID ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:600px){ .grid-2{ grid-template-columns:1fr; } }
+
+/* ── REMINDERS ── */
+.section-card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.section-title {
+  font-size: 13px; font-weight: 500;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+}
+.reminder-list { display: flex; flex-direction: column; gap: 8px; }
+.reminder-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--surface); border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.r-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0; margin-top: 5px;
+}
+.r-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.r-text { font-size: 14px; color: var(--text); line-height: 1.4; }
+.r-time { font-size: 12px; color: var(--muted); }
+.r-del {
+  background: none; border: none; color: var(--muted);
+  font-size: 13px; cursor: pointer; padding: 0; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.r-del:hover { color: var(--danger); }
+.empty-msg { color: var(--muted); font-size: 14px; text-align: center; padding: 16px 0; }
+
+/* ── CHECK-IN ── */
+.emergency-btn {
+  width: 100%; background: var(--danger-dim);
+  border: 2px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 20px; display: flex; align-items: center;
+  gap: 14px; cursor: pointer; text-align: left;
+  transition: background 0.2s, transform 0.1s;
+}
+.emergency-btn:hover { background: rgba(255,90,90,0.22); transform: scale(1.01); }
+.e-icon { font-size: 30px; flex-shrink: 0; }
+.e-info { display: flex; flex-direction: column; gap: 3px; }
+.e-title { font-size: 17px; font-weight: 700; color: var(--danger); font-family: 'Lexend', sans-serif; }
+.e-sub { font-size: 12px; color: var(--muted); font-family: 'Lexend', sans-serif; }
+.safe-btn {
+  width: 100%; background: var(--accent-dim);
+  border: 2px solid var(--accent); border-radius: var(--radius);
+  padding: 16px 20px; display: flex; align-items: center;
+  gap: 12px; cursor: pointer; transition: background 0.2s;
+}
+.safe-btn:hover { background: var(--accent-glow); }
+.s-icon { font-size: 22px; }
+.s-title { font-size: 15px; font-weight: 500; color: var(--accent); font-family: 'Lexend', sans-serif; }
+.caregiver-row { font-size: 12px; color: var(--muted); padding: 0 4px; }
+.caregiver-row span { color: var(--text); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 0.5px solid var(--border-hi);
+  border-radius: 99px; padding: 12px 24px;
+  font-size: 14px; color: var(--text);
+  opacity: 0; pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 999; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-dot">🩺</div>
+    <span class="logo-text"><em>Echo</em>Care</span>
+  </div>
+  <span class="header-badge">Voice-First AI</span>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- VOICE INPUT -->
+  <div class="voice-card">
+    <p class="voice-label">Speak or type a command</p>
+    <div class="waveform" id="waveform">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div>
+    </div>
+    <button class="mic-btn" id="micBtn">🎙️</button>
+    <div class="transcript-box placeholder" id="transcriptBox">
+      Say something like "Remind me to take my blue pill at 7 PM" or "What does hypertension mean?"
+    </div>
+    <div class="input-row">
+      <input class="text-input" id="textInput" placeholder='Or type here… e.g. "Remind me to drink water at noon"' />
+      <button class="send-btn" id="sendBtn">Send</button>
+    </div>
+    <div class="quick-row">
+      <button class="quick-btn" onclick="quickSend('Remind me to take my heart medication at 8 AM')">💊 Med reminder</button>
+      <button class="quick-btn" onclick="quickSend('What does hypertension mean in simple words?')">📖 Explain diagnosis</button>
+      <button class="quick-btn" onclick="quickSend('Remind me to drink water every 2 hours')">💧 Water reminder</button>
+      <button class="quick-btn" onclick="quickSend('Is it safe to take aspirin with warfarin?')">⚕️ Check medication</button>
+    </div>
+  </div>
+
+  <!-- AI RESPONSE -->
+  <div class="ai-response" id="aiResponse">
+    <div class="ai-top">
+      <span class="ai-label">EchoCare AI</span>
+      <span class="intent-badge badge-general" id="intentBadge"></span>
+    </div>
+    <div class="ai-text" id="aiText"></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid-2">
+    <!-- REMINDERS -->
+    <div class="section-card">
+      <p class="section-title">🕐 Reminders</p>
+      <div class="reminder-list" id="reminderList">
+        <p class="empty-msg">No reminders yet — ask me to set one!</p>
+      </div>
+    </div>
+
+    <!-- CHECK-IN -->
+    <div class="section-card">
+      <p class="section-title">🚨 Check-In</p>
+      <button class="emergency-btn" id="emergencyBtn">
+        <span class="e-icon">🆘</span>
+        <div class="e-info">
+          <span class="e-title">Send Help Alert</span>
+          <span class="e-sub">Notifies your caregiver immediately</span>
+        </div>
+      </button>
+      <button class="safe-btn" id="safeBtn">
+        <span class="s-icon">✅</span>
+        <span class="s-title">I'm Safe — Check In</span>
+      </button>
+      <p class="caregiver-row">Caregiver: <span id="caregiverDisplay">caregiver@example.com</span></p>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const CAREGIVER_EMAIL = 'nicolasproperties3@gmail.com'; // change this before deploying
+const MODEL = 'claude-haiku-4-5-20251001';
+
+const SYSTEM_PROMPT = `You are EchoCare, a compassionate voice-first AI assistant for elderly users and people with visual impairments. Help them with health reminders, emergencies, and medical questions.
+
+Always use PLAIN, SIMPLE language — like explaining to a 10-year-old. Short sentences. Warm, reassuring tone. No medical jargon.
+
+Respond ONLY with valid raw JSON. No markdown, no code blocks, no extra text. Just the JSON object.
+
+Schema:
+{"intent":"reminder"|"emergency"|"question"|"general","response":"1-3 warm simple sentences.","reminder":{"text":"what to remind","time":"human-readable time"}}
+
+The "reminder" key is ONLY included when intent is "reminder". Omit it for all other intents.
+
+Examples:
+User: "Remind me to take my blue pill after dinner"
+{"intent":"reminder","response":"Done! I've set a reminder for your blue pill after dinner.","reminder":{"text":"Take blue pill","time":"After dinner"}}
+
+User: "What is hypertension?"
+{"intent":"question","response":"Hypertension just means high blood pressure. It means your heart is working a little too hard. Your doctor can help with medicine or simple lifestyle changes."}
+
+User: "I fell down and need help"
+{"intent":"emergency","response":"I'm alerting your caregiver right now. Stay still and stay calm. Help is coming."}`;
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let reminders = JSON.parse(localStorage.getItem('echocare_reminders') || '[]');
+let isListening = false;
+let loading = false;
+let recognition = null;
+
+// ── SPEECH SETUP ──────────────────────────────────────────────────────────
+const hasSpeech = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+if (hasSpeech) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    let text = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      text += e.results[i][0].transcript;
+    }
+    setTranscript(text, false);
+    if (e.results[e.results.length - 1].isFinal) {
+      stopListening();
+      processInput(text);
+    }
+  };
+  recognition.onerror = (e) => {
+    if (e.error !== 'no-speech' && e.error !== 'aborted') showToast('Mic error: ' + e.error);
+    stopListening();
+  };
+  recognition.onend = stopListening;
+} else {
+  document.getElementById('micBtn').style.display = 'none';
+}
+
+// ── DOM REFS ──────────────────────────────────────────────────────────────
+const micBtn = document.getElementById('micBtn');
+const waveform = document.getElementById('waveform');
+const transcriptBox = document.getElementById('transcriptBox');
+const textInput = document.getElementById('textInput');
+const sendBtn = document.getElementById('sendBtn');
+const aiResponse = document.getElementById('aiResponse');
+const aiText = document.getElementById('aiText');
+const intentBadge = document.getElementById('intentBadge');
+const reminderList = document.getElementById('reminderList');
+const toast = document.getElementById('toast');
+document.getElementById('caregiverDisplay').textContent = CAREGIVER_EMAIL;
+
+// ── VOICE CONTROLS ────────────────────────────────────────────────────────
+micBtn.addEventListener('click', () => {
+  if (loading) return;
+  isListening ? stopListeningManual() : startListening();
+});
+
+function startListening() {
+  isListening = true;
+  micBtn.classList.add('listening');
+  micBtn.textContent = '🔴';
+  waveform.classList.add('active');
+  setTranscript('Listening… speak now', false);
+  recognition.start();
+}
+
+function stopListeningManual() {
+  recognition && recognition.stop();
+  stopListening();
+}
+
+function stopListening() {
+  isListening = false;
+  micBtn.classList.remove('listening');
+  micBtn.textContent = '🎙️';
+  waveform.classList.remove('active');
+}
+
+// ── INPUT HANDLING ────────────────────────────────────────────────────────
+sendBtn.addEventListener('click', () => {
+  const val = textInput.value.trim();
+  if (!val || loading) return;
+  setTranscript(val, false);
+  textInput.value = '';
+  processInput(val);
+});
+
+textInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+
+function quickSend(text) {
+  if (loading) return;
+  setTranscript(text, false);
+  processInput(text);
+}
+
+// ── CORE: CALL ANTHROPIC API ──────────────────────────────────────────────
+async function processInput(text) {
+  if (loading) return;
+  setLoading(true);
+
+  aiResponse.classList.add('show');
+  intentBadge.textContent = '';
+  intentBadge.className = 'intent-badge badge-general';
+  aiText.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        // No API key needed when deployed via Claude artifacts/Pages with built-in auth
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 300,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: text }],
+      }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const raw = (data.content?.[0]?.text ?? '{}').replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    handleResponse(parsed);
+  } catch (err) {
+    console.error('[EchoCare]', err);
+    aiText.textContent = 'Sorry, something went wrong. Please try again.';
+    showToast('⚠️ Connection error');
+  }
+
+  setLoading(false);
+}
+
+// ── HANDLE AI RESPONSE ────────────────────────────────────────────────────
+function handleResponse(parsed) {
+  const { intent, response, reminder } = parsed;
+
+  const badgeMap = {
+    reminder: ['badge-reminder', 'Reminder set'],
+    emergency: ['badge-emergency', 'Emergency'],
+    question: ['badge-question', 'Health info'],
+    general: ['badge-general', 'General'],
+  };
+  const [cls, label] = badgeMap[intent] || ['badge-general', 'General'];
+  intentBadge.className = 'intent-badge ' + cls;
+  intentBadge.textContent = label;
+
+  typeText(aiText, response);
+  speak(response);
+
+  if (intent === 'reminder' && reminder) {
+    addReminder(reminder.text, reminder.time);
+    showToast('✅ Reminder set: ' + reminder.text);
+  }
+
+  if (intent === 'emergency') triggerEmergency(response);
+}
+
+// ── REMINDERS ─────────────────────────────────────────────────────────────
+function addReminder(text, time) {
+  reminders.push({ id: Date.now(), text, time });
+  saveAndRenderReminders();
+}
+
+function deleteReminder(id) {
+  reminders = reminders.filter(r => r.id !== id);
+  saveAndRenderReminders();
+  showToast('Reminder removed');
+}
+
+function saveAndRenderReminders() {
+  localStorage.setItem('echocare_reminders', JSON.stringify(reminders));
+  if (reminders.length === 0) {
+    reminderList.innerHTML = '<p class="empty-msg">No reminders yet — ask me to set one!</p>';
+    return;
+  }
+  reminderList.innerHTML = reminders.map(r => `
+    <div class="reminder-item">
+      <div class="r-dot"></div>
+      <div class="r-content">
+        <span class="r-text">${r.text}</span>
+        <span class="r-time">${r.time}</span>
+      </div>
+      <button class="r-del" onclick="deleteReminder(${r.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+// ── EMERGENCY ─────────────────────────────────────────────────────────────
+document.getElementById('emergencyBtn').addEventListener('click', () => triggerEmergency());
+document.getElementById('safeBtn').addEventListener('click', () => {
+  showToast('✅ Safe check-in sent!');
+  speak("Great! I've let your caregiver know you're safe.");
+  const subject = encodeURIComponent('EchoCare Safe Check-In');
+  const body = encodeURIComponent(`EchoCare Safe Check-In\n\nThe user is doing well.\nSent: ${new Date().toLocaleString()}`);
+  window.open(`mailto:${CAREGIVER_EMAIL}?subject=${subject}&body=${body}`);
+});
+
+function triggerEmergency() {
+  showToast('🚨 Help alert sent to caregiver!');
+  speak('Sending a help alert to your caregiver right now. Stay calm, help is on the way.');
+  const subject = encodeURIComponent('🚨 EchoCare EMERGENCY Alert');
+  const body = encodeURIComponent(`EMERGENCY ALERT from EchoCare\n\nThe user needs immediate assistance.\nSent: ${new Date().toLocaleString()}\n\nPlease check on them right away.`);
+  window.open(`mailto:${CAREGIVER_EMAIL}?subject=${subject}&body=${body}`);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function setTranscript(text, placeholder) {
+  transcriptBox.textContent = text;
+  transcriptBox.className = 'transcript-box' + (placeholder ? ' placeholder' : '');
+}
+
+function setLoading(val) {
+  loading = val;
+  sendBtn.disabled = val;
+  micBtn.disabled = val;
+  document.querySelectorAll('.quick-btn').forEach(b => b.disabled = val);
+}
+
+function typeText(el, text) {
+  el.textContent = '';
+  let i = 0;
+  const iv = setInterval(() => {
+    el.textContent += text[i++];
+    if (i >= text.length) clearInterval(iv);
+  }, 18);
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.85; u.pitch = 1;
+  window.speechSynthesis.speak(u);
+}
+
+let _toastTimer;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+saveAndRenderReminders();
+</script>
+</body>
 </html>
