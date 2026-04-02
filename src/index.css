@@ -1,0 +1,53 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --card: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hi: rgba(255, 255, 255, 0.18);
+  --text: #f0ede8;
+  --muted: #8a8682;
+  --accent: #c8f060;
+  --accent-dim: rgba(200, 240, 96, 0.12);
+  --accent-glow: rgba(200, 240, 96, 0.25);
+  --danger: #ff5a5a;
+  --danger-dim: rgba(255, 90, 90, 0.12);
+  --info: #60c8f0;
+  --info-dim: rgba(96, 200, 240, 0.10);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Lexend', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: 'Lexend', sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+
+input {
+  font-family: 'Lexend', sans-serif;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
