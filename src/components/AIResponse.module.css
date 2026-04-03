@@ -1,12 +1,13 @@
 .card {
   background: var(--card);
-  border: 0.5px solid var(--border);
-  border-left: 3px solid var(--accent);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
   border-radius: var(--radius);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-shadow: var(--shadow);
 }
 
 .top {
@@ -20,12 +21,12 @@
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 3px 12px;
   border-radius: 99px;
   font-size: 12px;
   font-weight: 500;
@@ -34,34 +35,33 @@
 .badgeReminder {
   background: var(--accent-dim);
   color: var(--accent);
-  border: 0.5px solid rgba(200, 240, 96, 0.3);
+  border: 1px solid rgba(61, 139, 55, 0.25);
 }
 
 .badgeEmergency {
   background: var(--danger-dim);
   color: var(--danger);
-  border: 0.5px solid rgba(255, 90, 90, 0.3);
+  border: 1px solid rgba(217, 79, 79, 0.25);
 }
 
 .badgeQuestion {
   background: var(--info-dim);
   color: var(--info);
-  border: 0.5px solid rgba(96, 200, 240, 0.3);
+  border: 1px solid rgba(46, 134, 171, 0.25);
 }
 
 .badgeGeneral {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--muted);
-  border: 0.5px solid var(--border-hi);
+  background: var(--warm-dim);
+  color: var(--warm);
+  border: 1px solid rgba(249, 160, 63, 0.25);
 }
 
 .text {
   font-size: 17px;
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--text);
 }
 
-/* Loading dots */
 .dots {
   display: flex;
   align-items: center;
@@ -71,8 +71,8 @@
 
 .dots span {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   background: var(--accent);
   border-radius: 50%;
   animation: bounce 0.9s ease-in-out infinite alternate;
@@ -85,3 +85,4 @@
   from { transform: translateY(0); opacity: 0.4; }
   to { transform: translateY(-7px); opacity: 1; }
 }
+
