@@ -1,11 +1,14 @@
-// Pollinations.ai — 100% free, no API key, no signup, no CORS issues.
-// Docs: https://pollinations.ai
+// Google Gemini API — free tier at https://aistudio.google.com/apikey
+// Add VITE_GEMINI_API_KEY=your_key to your .env file
 
-const SYSTEM_PROMPT = `You are EchoCare, a compassionate voice-first AI assistant built for elderly users and people with visual impairments. Help them with health reminders, emergencies, and medical questions.
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? '';
+const MODEL = 'gemini-2.0-flash';
+
+const SYSTEM_PROMPT = `You are EchoCare, a compassionate voice-first AI assistant for elderly users and people with visual impairments. Help with health reminders, emergencies, and medical questions.
 
 Always use PLAIN, SIMPLE language — like explaining to a 10-year-old. Short sentences. Warm, reassuring tone. No medical jargon.
 
-Respond ONLY with a valid raw JSON object. No markdown, no code fences, no explanation. Just the JSON.
+Respond ONLY with a valid raw JSON object. No markdown, no code fences, no explanation before or after. Just the JSON.
 
 Schema:
 {"intent":"reminder"|"emergency"|"question"|"general","response":"1-3 warm simple sentences.","reminder":{"text":"what to remind","time":"human-readable time"}}
@@ -32,26 +35,35 @@ export interface ParsedResponse {
 }
 
 export const parseIntent = async (userText: string): Promise<ParsedResponse> => {
-  const prompt = encodeURIComponent(
-    `${SYSTEM_PROMPT}\n\nUser: "${userText}"\n\nRespond with JSON only:`
-  );
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
-  // Pollinations text API — free, no auth, browser-safe
-  const res = await fetch(
-    `https://text.pollinations.ai/${prompt}?model=openai&json=true`,
-    { method: 'GET' }
-  );
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: {
+        parts: [{ text: SYSTEM_PROMPT }],
+      },
+      contents: [
+        { role: 'user', parts: [{ text: userText }] },
+      ],
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 300,
+        responseMimeType: 'application/json',
+      },
+    }),
+  });
 
   if (!res.ok) {
-    throw new Error(`Pollinations API error ${res.status}`);
+    const err = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${err}`);
   }
 
-  const raw = await res.text();
+  const data = await res.json();
+  const raw: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '{}';
   const clean = raw.replace(/```json|```/g, '').trim();
-
-  // Extract JSON object from response (sometimes wrapped in extra text)
   const match = clean.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON found in response');
-
+  if (!match) throw new Error('No JSON in Gemini response');
   return JSON.parse(match[0]) as ParsedResponse;
 };

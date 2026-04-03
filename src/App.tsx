@@ -50,11 +50,11 @@ export default function App() {
       }
     } catch (err) {
       console.error('[EchoCare] API error:', err);
-      toast.show('⚠️ Connection error — check your API key in .env');
+      toast.show('⚠️ Connection error — check your VITE_GEMINI_API_KEY in .env');
       setAiData({
         intent: 'general',
         response:
-          'Sorry, I had trouble connecting. Please check your internet connection and API key.',
+          'Sorry, I had trouble connecting. Please check your internet connection and Gemini API key in the .env file.',
       });
     } finally {
       setLoading(false);
