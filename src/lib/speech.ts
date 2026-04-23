@@ -10,7 +10,7 @@ type SpeechCallbacks = {
   onEnd: () => void;
 };
 
-let recognition: SpeechRecognition | null = null;
+let recognition: any = null;
 
 export const startListening = (cb: SpeechCallbacks): void => {
   if (!isSpeechSupported()) {
@@ -19,17 +19,15 @@ export const startListening = (cb: SpeechCallbacks): void => {
   }
 
   const SR =
-    (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition })
-      .SpeechRecognition ??
-    (window as Window & { webkitSpeechRecognition?: typeof SpeechRecognition })
-      .webkitSpeechRecognition!;
+    (window as any).SpeechRecognition ??
+    (window as any).webkitSpeechRecognition;
 
   recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
 
-  recognition.onresult = (e) => {
+  recognition.onresult = (e: any) => {
     let interim = '';
     let final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -41,7 +39,7 @@ export const startListening = (cb: SpeechCallbacks): void => {
     if (final) cb.onFinal(final);
   };
 
-  recognition.onerror = (e) => {
+  recognition.onerror = (e: any) => {
     if (e.error !== 'no-speech' && e.error !== 'aborted') {
       cb.onError(`Mic error: ${e.error}`);
     }

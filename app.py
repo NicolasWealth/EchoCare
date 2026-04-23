@@ -8,7 +8,14 @@ import time
 
 # --- SETUP ---
 genai.configure(api_key="YOUR_GEMINI_API_KEY")
-model = genai.GenerativeModel('gemini-1.5-flash')
+system_instruction = """You are EchoCare, a compassionate voice-first AI assistant for elderly users and people with visual impairments. Help with health reminders, emergencies, and medical questions.
+Always use PLAIN, SIMPLE language — like explaining to a 10-year-old. Short sentences. Warm, reassuring tone. No medical jargon.
+PRIORITIZE SAFETY AND STAY IN CHARACTER."""
+
+model = genai.GenerativeModel(
+    'gemini-1.5-flash',
+    system_instruction=system_instruction
+)
 
 # The page icon also gets a spring flower!
 st.set_page_config(page_title="EchoCare", page_icon="🌷")
@@ -17,40 +24,22 @@ st.set_page_config(page_title="EchoCare", page_icon="🌷")
 if "history" not in st.session_state:
     st.session_state.history = []
 
-# --- CSS STYLING (Spring Vibe + Huge Buttons) ---
-# Beautiful light spring theme default styling for screenshots
+# --- CSS STYLING (High Contrast Mode) ---
 st.markdown("""
     <style>
-        .stApp {
-            background-color: #f6feed; /* Soft mint / spring green background */
-        }
-        h1, h2, h3, h4, h5, h6, p, label {
-            color: #2b4a24 !important; /* Deep earth green text */
-            font-family: 'Inter', sans-serif;
-        }
-        
-        /* HUGE, Clickable Buttons */
-        .stButton > button {
-            width: 100%;
-            height: 110px;
-            font-size: 34px !important;
-            font-weight: 800 !important;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        /* Style standard buttons with a vibrant spring green */
-        .stButton > button[kind="secondary"] {
-            background-color: #a4f4b0 !important; 
-            color: #1a3c14 !important;
-            border: 2px solid #5de471 !important;
-        }
-        .stButton > button[kind="secondary"]:hover {
-            transform: scale(1.02);
-            background-color: #8be098 !important;
-        }
+    .stApp {
+        background-color: #000000;
+        color: #FFFF00;
+        font-size: 20px;
+    }
+    .stButton>button {
+        background-color: #FFFF00;
+        color: #000000;
+        font-weight: bold;
+        font-size: 20px;
+    }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 
 # --- SIDEBAR & EMERGENCY ---
